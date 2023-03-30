@@ -1,0 +1,124 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"> 
+<html xmlns="http://www.w3.org/1999/xhtml"> 
+<head> 
+<title></title> 
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.3.0/dist/leaflet.css" />
+<link rel="stylesheet" href="../src/leaflet-search.css" />
+<link rel="stylesheet" href="style.css" />
+<style>
+.leaflet-marker-icon {
+	color: #fff;
+	font-size: 16px;
+	line-height: 16px;	
+	text-align: center;
+	vertical-align: middle;
+	box-shadow: 2px 1px 4px rgba(0,0,0,0.3);
+	border-radius: 8px;
+	border:1px solid #fff;
+}
+.search-tip b {
+	color: #fff;
+}
+.missionEnviro.search-tip b,
+.missionEnviro.leaflet-marker-icon {
+	background: #f66
+}
+.missionModelisation.search-tip b,
+.missionModelisation.leaflet-marker-icon {
+	background: #f6f
+}
+.missionNatura2000.search-tip b,
+.missionNatura2000.leaflet-marker-icon {
+	background: #66f
+}
+.missionSocietal.search-tip b,
+.missionSocietal.leaflet-marker-icon {
+	background: #f66
+}
+.missionVidanges.search-tip b,
+.missionVidanges.leaflet-marker-icon {
+	background: #f66
+}
+.search-tip {
+	white-space: nowrap;
+}
+.search-tip b {
+	display: inline-block;
+	clear: left;
+	float: right;
+	padding: 0 4px;
+	margin-left: 4px;
+}
+</style>
+</head>
+
+<body>
+<h3><a href="../"><big>◄</big> Leaflet.Control.Search</a></h3>
+
+<h4>Multiple Layers Example: <em>search markers in multiple layers</em></h4>
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet@1.3.0/dist/leaflet.js"></script>
+<script src="../src/leaflet-search.js"></script>
+<script src="data/Enviro.js"></script>
+<script src="data/Modelisation.js"></script>
+<script src="data/Natura2000.js"></script>
+<script src="data/Societal.js"></script>
+<script src="data/Vidanges.js"></script>
+
+<script>
+
+	var map = L.map('map', {
+			zoom: 14,
+			center: new L.latLng(45, 5),
+			layers: L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png')
+		}),
+		geojsonOpts = {
+			pointToLayer: function(feature, latlng) {
+				return L.marker(latlng, {
+					icon: L.divIcon({
+						className: feature.properties.Nom,
+						iconSize: L.point(16, 16),
+					
+					})
+				}).bindPopup('<b>Nom de mission : </b>'+ feature.properties.Nom+ '<br>'
+				+ '<b> Type de la mission : </b>'+feature.properties.Type+ '<br>'
+				+'<b> Client : </b>'+feature.properties.Client+ '<br>'
+				+'<b> Agence SEGULA : </b>'+feature.properties.Agence+ '<br>'
+				+'<b> Année du début de la mission : </b>'+feature.properties.Année_D+ '<br>'
+				+'<b> Année du fin de la mission : </b>'+feature.properties.Année_F+ '<br>'
+				+'<b> Heures consacrées : </b>'+feature.properties.Heures+ '<br>'
+				+'<b> Lien PDF : </b>'+'<a href="'+feature.properties.PDF+' ">Lien du PPTX</a>');
+			}
+		};
+
+	var poiLayers = L.layerGroup([
+		L.geoJson(missionEnviro, geojsonOpts),
+		L.geoJson(missionModelisation, geojsonOpts),
+		L.geoJson(missionNatura2000, geojsonOpts),
+		L.geoJson(missionSocietal, geojsonOpts),
+		L.geoJson(missionVidanges, geojsonOpts)
+	])
+	.addTo(map);
+
+	L.control.search({
+		layer: poiLayers,
+		initial: false,
+		propertyName: 'Nom',
+		buildTip: function(text, val) {
+			var type = val.layer.feature.properties.Nom;
+			return '<a href="#" class="'+type+'">'+text+'<b>'+type+'</b></a>';
+		}
+	})
+	.addTo(map);
+
+
+</script>
+
+<div id="copy"><a href="https://opengeo.tech/">Website</a> &bull; <a rel="author" href="https://opengeo.tech/stefano-cudini/">Stefano Cudini</a></div>
+
+<script type="text/javascript" src="/labs-common.js"></script>
+
+</body>
+</html>
